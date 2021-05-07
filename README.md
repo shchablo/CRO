@@ -25,7 +25,7 @@ source $HOME/miniconda/etc/profile.d/conda.sh
 ```console
 conda env create -f cro_env.yml
 conda activate cro_env
-'''
+```
 
 ## Installation
 
@@ -33,21 +33,22 @@ conda activate cro_env
 mkdir build
 cmake ..
 make
-'''
+```
+
 ## Examples
 
 ### Read raw data:
 
 ```console
 ./bin/cro -m 1:1 -input /path/to/daq.dat -output ./tmp/ro.root
-'''
+```
 
 ### Read .root data:
 
 ```console
 cd script
 python dump.py ../tmp/ro_r504_s0.root
-'''
+```
 # Links
 
 OMA_SOFT (np02daq): https://gitlab.cern.ch/vgalymov/np02daq
