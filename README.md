@@ -37,7 +37,7 @@ make
 
 ## Examples
 
-### Read raw data:
+### Read .dat data:
 
 ```console
 ./bin/cro -m 1:1 -input /path/to/daq.dat -output ./tmp/ro.root
