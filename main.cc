@@ -17,6 +17,8 @@ using namespace std;
 #include <argparse.h>
 #include "DqProcessBar.h"
 
+#include <fftw3.h>
+
 int main(int argc, char** argv)
 {
   
@@ -114,12 +116,13 @@ int main(int argc, char** argv)
 	      auto end   = begin + nsa;
         
         unsigned tick = 0;  
+        //std::cout << nsa << std::endl;
         for(auto it = begin; it != end; ++it)
           roEvent.getLastPayload()->addTickCRO(*it, tick++);
         roEvent.getLastPayload()->setNsaCRO(tick);
         // LRO
       }
-      
+		  
       tree.Fill(); roEvent.Clear("C");
     
       if(ev < nev - 1) processBar.print(ev, 0.02);

@@ -9,5 +9,7 @@
 #pragma link C++ class RoMap+;
 #pragma link C++ class RoPayload+;
 #pragma link C++ class RoEvent+;
+#pragma link C++ class RoSig+;
+#pragma link C++ class RoSigHeader+;
 
 #endif

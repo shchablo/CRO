@@ -108,9 +108,11 @@ private:
 
   UInt_t    fNsaCRO;
   TArrayI   fCRO; 
+  //Int_t fCRO[10000]; 
   
   UInt_t    fNsaLRO;
   TArrayI   fLRO; 
+  //Int_t fLRO[10000]; 
 
 public:
   
@@ -124,6 +126,8 @@ public:
   }
   void addTickCRO(Int_t digi, Int_t tick) { fCRO.AddAt(digi, tick); };
   void addTickLRO(Int_t digi, Int_t tick) { fLRO.AddAt(digi, tick); };
+  //void addTickCRO(Int_t digi, Int_t tick) { fCRO[tick] = digi; };
+  //void addTickLRO(Int_t digi, Int_t tick) { fLRO[tick] = digi; };
   
   UInt_t getCh() { return fCh; }
   RoMap *getMap() { return &fMap; }
@@ -131,12 +135,15 @@ public:
   UInt_t getNsaCRO() { return fNsaCRO; }
   void setNsaCRO(UInt_t nsaCRO) { fNsaCRO = nsaCRO;  }
   TArrayI getCRO() { return fCRO; }
+  //Int_t *getCRO() { return fCRO; }
   
   UInt_t getNsaLRO() { return fNsaLRO; }
   void setNsaLRO(UInt_t nsaLRO) { fNsaLRO = nsaLRO;  }
   TArrayI getLRO() { return fLRO; }
+  //Int_t *getLRO() { return fLRO; }
   
   void Clear(Option_t * option ) { fCh = 0; fNsaCRO = 0; fCRO.Reset(); fNsaLRO = 0; fLRO.Reset(); fMap.Clear(option); TObject::Clear(option); };
+  //void Clear(Option_t *option ) { fCh = 0; fNsaCRO = 0; fNsaLRO = 0;  fMap.Clear(option); TObject::Clear(option); };
    
    ClassDef(RoPayload, 1) 
 };
@@ -176,6 +183,65 @@ public :
   void Clear(Option_t * option) {  fNumPayloads = 0; fEvtHdr.Clear(option); fPayloads->Clear(option); };
   
   ClassDef(RoEvent, 1)
+};
+
+
+class RoSigHeader: public TObject {
+
+public:
+  
+  int numev;
+
+  RoSigHeader() {;};
+  virtual ~RoSigHeader() {;};
+   
+  void Clear() {;}; 
+  ClassDef(RoSigHeader, 1)
+};
+class RoSig: public TObject {
+
+public:
+  
+  int ch;
+  int card;
+  int event;
+  //int isEvent;
+  
+  int pol;
+  int window;
+  int thr;
+  int peak;
+  int unequal;
+  
+  std::vector<int> signal; 
+  std::vector<int> pedestal;
+  std::vector<int> peaks;
+
+  int level; 
+  int sum;
+  int height;
+
+  RoSig() {;};
+  virtual ~RoSig() {;};
+   
+  void Clear() {
+    ch = 0;
+    card = 0;
+    event = 0;
+    
+    pol = 0;
+    window = 0;
+    thr = 0;
+    peak = 0;
+    unequal = 0;
+    level = 0; 
+    sum = 0;
+    height = 0;
+    signal.clear(); 
+    pedestal.clear(); 
+    peaks.clear(); };
+  
+  ClassDef(RoSig, 1)
 };
 
 #endif // ROEVENT_H

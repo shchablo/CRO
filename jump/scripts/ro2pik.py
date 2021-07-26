@@ -13,54 +13,44 @@ sys.path.append("../package/")
 import lycro 
 
 
-def main():
+def main(run, root, path, threshold, pad):
 
-  run = "602"
-  thr = 70; pad = 30
-  root = "../../tmp/ro_r" + run + ".root"
-  pick = "../../tmp/ju_r" + run + "_thr-" + str(thr) + "_pad-" + str(pad) + ".pik"
-  print("ROOT file: {}".format(root))
-  print("PICK file: {}".format(pick))
+thr = threshold
+pick = + path + "/ju_" + run + "_thr-" + str(thr) + "_pad-" + str(pad) + ".pik"
+print("ROOT file: {}".format(root))
+print("PICK file: {}".format(pick))
 
-  #get data from RoEvent class (to generate it use dq script)
-  f = ROOT.TFile(root)
-  myTree = f.Get("data")
+f = ROOT.TFile(root)
+myTree = f.Get("data")
 
-  #myTree.Print()
-  #myTree.Show(560)
-
-  #loop over chs
-  events = []
-
-  print(myTree.GetEntries())
-  myTree.GetEntry(570)
-  print(myTree.events.getHeader().getEvtNum())
-
-  for entry in myTree:
-    ro_signals = []
+#loking signals
+ro_signals = []
+numEv = myTree.GetEntries()
+for entry in myTree:
     events = entry.events
     numCh = events.getNumPayloads()
     ev = events.getHeader().getEvtNum()
-    print("Ev {} is processing... ".format(ev), end='\r')
+    print("Ev {}:{} is processing... ".format(ev, numEv), end='\r')
     for n in range(numCh):
-      ch = events.getPayloads().AddrAt(n).getCh()
-      cro = events.getPayloads().AddrAt(n).getCRO()
-      numSa = events.getPayloads().AddrAt(n).getNsaCRO()
-      fft = pyfftw.interfaces.numpy_fft.fft(cro)
-      #data = array('i')
-      #for ns in range(numSa): 
-      #    data.append(int(cro[ns]));
-      #data = lycro.alignment(cro, 0)
-      #ev_signals_pos = lycro.findSignals(data, thr=thr, pad=pad, pol = 1)
-      #ev_signals_neg = lycro.findSignals(data, thr=thr, pad=pad, pol = -1)
-      #print(data)
-      #ro_signals.extend(ev_signals_pos)
-      #ro_signals.extend(ev_signals_neg)
-    
+        ch = events.getPayloads().AddrAt(n).getCh()
+        cro = events.getPayloads().AddrAt(n).getCRO()
+        numSa = events.getPayloads().AddrAt(n).getNsaCRO()
+        data = lycro.alignment(cro, 0)
+        ev_signals_pos = lycro.findSignals(ev, ch, data, thr, pad, 1)
+        ev_signals_neg = lycro.findSignals(ev, ch, data, thr, pad, -1)
+        ro_signals.extend(ev_signals_pos)
+        ro_signals.extend(ev_signals_neg)
+
+with open(pick, "wb") as f:
+    pickle.dump(len(ro_signals), f)
+    for value in ro_signals:
+        pickle.dump(value, f)
+
 parser = argparse.ArgumentParser();
 parser = argparse.ArgumentParser(description='This is the script that tries to find picks of signals by the threshold in a tree (roCRO event) and save the peak file.')
-parser.add_argument("-in", "--input", type=str, default="", required=False, help='An input file with tree of roCro classes.')
-parser.add_argument("-out", "--output", type=str, default="", required=False, help='An output file.')
+parser.add_argument("-run", "--run", type=str, default="", required=False, help='An run number..')
+parser.add_argument("-in", "--root", type=str, default="", required=False, help='An input file with tree of roCro classes.')
+parser.add_argument("-out", "--path", type=str, default="", required=False, help='An path to folder of an output file.')
 parser.add_argument("-thr", "--threshold", type=float, default=70, required=False, help='The threshold from the pedestal (pedestal alignment to 0) (ADCu).')
 parser.add_argument("-pad", "--pad", type=float, default=30, required=False, help='window = [peak - pad; peak + pad].')
 

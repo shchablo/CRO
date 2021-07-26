@@ -41,8 +41,7 @@ set(CMAKE_PLATFORM_INDEPENDENT_CODE ON)
 	
   include("${ROOT_USE_FILE}")
 	
-  ROOT_GENERATE_DICTIONARY(G__RoEvent ${CMAKE_CURRENT_SOURCE_DIR}/include/RoEvent.h
-    LINKDEF ${CMAKE_CURRENT_SOURCE_DIR}/include/RoEventLinkDef.h) 
+  ROOT_GENERATE_DICTIONARY(G__RoEvent ${CMAKE_CURRENT_SOURCE_DIR}/include/RoEvent.h LINKDEF ${CMAKE_CURRENT_SOURCE_DIR}/include/RoEventLinkDef.h) 
   set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs)
   add_library(RoEvent SHARED ${CMAKE_CURRENT_SOURCE_DIR}/src/RoEvent.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/include/RoEvent.h G__RoEvent.cxx)
@@ -62,11 +61,15 @@ set(CMAKE_PLATFORM_INDEPENDENT_CODE ON)
 #-------------------------------------------------------------------------------
 
 # PROJECT SRC ------------------------------------------------------------------
-file(GLOB MAIN "*.cc")
+file(GLOB MAIN "main.cc")
+file(GLOB SIG "script/sig/main.cc")
+file(GLOB PED "script/ped/main.cc")
   ## main 
   file(GLOB SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc")
     ### inData
   set(CPPS ${MAIN} ${SRC})
+  set(SIGCPPS ${SIG} ${SRC})
+  set(PEDCPPS ${PED} ${SRC})
 
 
 #-------------------------------------------------------------------------------
@@ -83,15 +86,22 @@ file(GLOB MAIN "*.cc")
     message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++17 support. Please update your C++ compiler.")
   endif()
 
-add_definitions(-Wall -lpthread)
+add_definitions(-Wall -lpthread -lfftw3)
 
 #Link to ROOT.
 
 add_executable(${PROJECT_NAME} ${CPPS})
 target_link_libraries(${PROJECT_NAME} RoEvent ${ROOT_LIBRARIES} ${ZLIB_LIBRARIES})
+
+add_executable(sig ${SIGCPPS})
+target_link_libraries(sig RoEvent ${ROOT_LIBRARIES} ${ZLIB_LIBRARIES})
+add_executable(ped ${PEDCPPS})
+target_link_libraries(ped RoEvent ${ROOT_LIBRARIES} ${ZLIB_LIBRARIES})
+
 # LIBRARIES --------------------------------------------------------------------
 file(GLOB PCM_FILES "${PROJECT_BINARY_DIR}/*.pcm")
 file(COPY ${PCM_FILES} DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+
 #-------------------------------------------------------------------------------
 ################################################################################
 
