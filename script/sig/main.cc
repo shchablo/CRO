@@ -59,7 +59,7 @@ int main(int argc, char** argv)
   
   chans = cmap->find_by_seqn(0, cmap->ntot()); // only all chs.
   
-  int window = 45; int pad1 = 10; int pad2 = 35; int threshold = 200; int offset = 10000; int fluctuations = int(threshold/3); int pol = 1; int ref = 2048; 
+  int window = 45; int pad1 = 10; int pad2 = 35; int threshold = 500; int offset = 10000; int fluctuations = int(threshold/3); int pol = 1; int ref = 2048; 
   
   DqPeaks peak;
   

@@ -64,12 +64,14 @@ set(CMAKE_PLATFORM_INDEPENDENT_CODE ON)
 file(GLOB MAIN "main.cc")
 file(GLOB SIG "script/sig/main.cc")
 file(GLOB PED "script/ped/main.cc")
+file(GLOB REA "script/ready/main.cc")
   ## main 
   file(GLOB SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc")
     ### inData
   set(CPPS ${MAIN} ${SRC})
   set(SIGCPPS ${SIG} ${SRC})
   set(PEDCPPS ${PED} ${SRC})
+  set(REACPPS ${REA} ${SRC})
 
 
 #-------------------------------------------------------------------------------
@@ -97,6 +99,8 @@ add_executable(sig ${SIGCPPS})
 target_link_libraries(sig RoEvent ${ROOT_LIBRARIES} ${ZLIB_LIBRARIES})
 add_executable(ped ${PEDCPPS})
 target_link_libraries(ped RoEvent ${ROOT_LIBRARIES} ${ZLIB_LIBRARIES})
+add_executable(rea ${REACPPS})
+target_link_libraries(rea RoEvent ${ROOT_LIBRARIES} ${ZLIB_LIBRARIES})
 
 # LIBRARIES --------------------------------------------------------------------
 file(GLOB PCM_FILES "${PROJECT_BINARY_DIR}/*.pcm")
