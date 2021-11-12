@@ -1,5 +1,6 @@
 #include "ChannelMap.h"
 #include "LogMsg.h"
+#include "tde_cmap_utils.h"
 
 #include <boost/range.hpp>
 #include <boost/range/adaptors.hpp>
@@ -53,34 +54,31 @@ void ChannelMap::init( std::string mapname )//, unsigned ncrates,
   
   clear();
   mapname_ = mapname;
-  if( mapname.compare("pddp2crp") == 0 ) 
-    { 
-      pddp2crpMap();
-    }      
-  else if( mapname.compare("pddp4crp") == 0 )
-    {
-      pddp4crpMap();
-    }
-  else
-    {
+  if(mapname.compare("pddp2crp") == 0) {
+    pddp2crpMap();
+  }
+  else if(mapname.compare("vdcblcrp") == 0) {
+    vdcb1crpMap();
+  }
+  else {
       unsigned ncrates = 1;
       unsigned ncards  = 10;
       unsigned nviews  = 1;
       int counts = std::count(mapname_.begin(), mapname_.end(), ':');
-      if( counts <= 0 || counts > 2 ){
-	msg_warn<<"Could not interpret the string '"<<mapname_<<"'"<<endl;
+      if( counts <= 0 || counts > 2 ) {
+        msg_warn << "Could not interpret the string '" << mapname_ << "'" << endl;
       }
       else {
-	vector<unsigned> iopts;
-	unpackCMapOpts<unsigned>( mapname_, iopts );
-	for( unsigned i = 0; i<iopts.size(); ++i){
-	  if( i == 0 ) ncrates = iopts[i];
-	  else if( i == 1 ) ncards = iopts[i];
-	  else if ( i == 2 ) nviews = iopts[i];
-	}
+        vector<unsigned> iopts;
+        unpackCMapOpts<unsigned>( mapname_, iopts );
+        for( unsigned i = 0; i < iopts.size(); ++i) {
+	        if( i == 0 ) ncrates = iopts[i];
+	        else if( i == 1 ) ncards = iopts[i];
+	        else if( i == 2 ) nviews = iopts[i];
+	      }
       }
-      msg_info<<"Simple channel map with number of crates / cards per crate / views : "
-	      <<ncrates << " / " << ncards <<" / "<<nviews<<endl;
+      msg_info << "Simple channel map with number of crates / cards per crate / views : "
+	            << ncrates << " / " << ncards << " / " << nviews << endl;
       
       simpleMap( ncrates, ncards, nviews );
     }
@@ -286,92 +284,6 @@ void ChannelMap::pddp2crpMap()
   //cout<<'\n';
 }
 
-//
-void ChannelMap::pddp4crpMap()
-{
-  // NEEDS TO BE FIXED
-
-  // all idices run from 0
-  unsigned ncrates = 12;
-  vector<unsigned> cards_per_crate(ncrates, 10);
-  unsigned nch  = 64;
-  unsigned ncrp = 4;
-  vector<unsigned> crpv(2*ncrp, 0);
-
-  //
-  unsigned seqn = 0;
-  unsigned crp, view;
-  for(unsigned crate = 0;crate<ncrates;crate++)
-    {
-      // number of cards in this crate
-      unsigned ncards = cards_per_crate[ crate ];
-      for( unsigned card = 0;card<ncards;card++ )
-	{
-	  // which view ?
-	  if( crate < 6 ) view = 0;
-	  else view = 1;
-	  
-	  // which CRP ?
-	  if( crate < 3 ) 
-	    {
-	      crp = 1;
-	      if( card >= 5 ) crp = 2;
-	    }
-	  else if( crate >= 3 && crate < 6 )
-	    {
-	      crp = 0;
-	      if( card >= 5 ) crp = 3;
-	    }
-	  else if( crate >=6 && crate < 9 )
-	    {
-	      crp  = 0;
-	      if( card >= 5 ) crp = 1;
-	    }
-	  else
-	    {
-	      crp = 3;
-	      if( card >= 5 ) crp = 2;
-	    }
-	  
-	  //cout<<setw(3)<<crate
-	  //<<setw(3)<<card
-	  //<<setw(2)<<crp
-	  //<<setw(2)<<view<<endl;
-	  
-	  // get iterator to view channel numbering
-	  auto vchIt = crpv.begin() + view * ncrp + crp;
-	  
-	  int apara = 1;
-	  int bpara = 0;
-	  if( view == 0 )
-	    {
-	      // order 31 -> 0 for these KEL connectors
-	      apara = -1;
-	      bpara = 31;
-	    }
-	  // card channels
-	  for( unsigned ch = 0; ch<nch; ch++ )
-	    {
-	      if( ch == nch/2 ) *vchIt = *vchIt + nch/2;
-	      int tmp = apara * (ch % 32) + bpara;
-	      if( tmp < 0 ) 
-		{
-		  cerr<<"oh oh I screwed up\n";
-		  continue;
-		}
-	      
-	      unsigned vch = *vchIt + tmp;
-	      add( seqn++, crate, card, ch, crp, view, vch );
-	    }
-	  // add the second connector
-	  *vchIt = *vchIt + nch/2;
-
-	  //
-	}
-    }
-  //for( auto i: crpv ){ cout<<i<<" "; }
-  //cout<<'\n';
-}
 
 // 
 //
@@ -507,7 +419,7 @@ boost::optional<ChannelId> ChannelMap::find_by_crp_view_chan( unsigned crp,
 void ChannelMap::add( unsigned seq, unsigned crate, unsigned card, unsigned cch,
 		      unsigned crp, unsigned view, unsigned vch, unsigned short state )
 {
-  /*
+  
   // for debug ...
   bool ok = true;
   if( boost::optional<ChannelId> id = find_by_seqn( seq ) )
@@ -523,7 +435,7 @@ void ChannelMap::add( unsigned seq, unsigned crate, unsigned card, unsigned cch,
       cerr<<"arealdy have added this crp/view/ch "<<crp<<"/"<<view<<"/"<<vch<<"\n"; ok = false;
     }
   if( !ok ) return;
-  */
+  //*/
 
   chanTable.insert( ChannelId(seq, crate, card, cch, crp, view, vch, state) );
   //
@@ -643,4 +555,146 @@ void ChannelMap::print( std::vector<ChannelId> &vec )
 	  <<setw(2)<<state
 	  <<setw(2)<<exists<<endl;
     }
+}
+
+
+// CRP for 1st coldbox test
+void ChannelMap::vdcb1crpMap(){
+
+  //int ncrates = 3;
+  int nslots  = 10;
+  int nview   = 3;
+
+  // utca crate 1
+  tde::crate c1( 0, nslots );
+  vector<int> c1_kel{34, 36, 35, 38, 37, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49};
+  c1.add_crp_connection( 0, 0, c1_kel );
+
+  // utca crate 2
+  tde::crate c2( 1, nslots );
+  vector<int> c2_kel{14, 16, 15, 18, 17, 19, 20, 22, 21, 25, 23, 24, 26, 27, 28, 32, 29, 30, 31, 33};
+  c2.add_crp_connection( 0, 0, c2_kel );
+
+  // utca crate 3
+  tde::crate c3( 2, nslots );
+  vector<int> c3_kel{0, 2, 1, 5, 3, 4, 6, 7, 8, 12, 9, 10, 11, 13};
+  c3.add_crp_connection( 0, 0, c3_kel );
+  
+  vector<tde::crate> crates{c1, c2, c3};
+
+  // all connector mappings should include ADC channel inversion on AMCs 
+  // the inversion is in group of 8ch: AMC ch 0 -> 7 should be remapped to 7 -> 0
+  
+  // kel connector orientation in a given view, chans 0 -> 31
+  vector<unsigned> kel_nor = { 7,  6,  5,  4,  3,  2,  1,  0, 15, 14, 13, 12, 11, 10,  9,
+			       8, 23, 22, 21, 20, 19, 18, 17, 16, 31, 30, 29, 28, 27, 26, 25, 24 };
+  // kel connector orientation in a given view, chans 31 -> 0
+  vector<unsigned> kel_inv = {24, 25, 26, 27, 28, 29, 30, 31, 16, 17, 18, 19, 20, 21, 22,
+			      23,  8,  9, 10, 11, 12, 13, 14, 15,  0,  1,  2,  3,  4,  5,  6,  7 };
+
+  
+  // kel connectors for each view sorted in the view channel order
+  // induction 1
+  vector<int> kel_view0{1,5,8,12,15,18,21,25,28,32,35,38};
+  std::reverse(kel_view0.begin(), kel_view0.end());
+  // induction 2
+  vector<int> kel_view1{40,41,42,43,44,45,46,47,48,49, 13,11,10,9,7,6,4,3,2,0};
+  // collection
+  vector<int> kel_view2{14,16,17,19,20,22,23,24,26,27,29,30,31,33,34,36,37,39};
+  std::reverse(kel_view2.begin(), kel_view2.end());
+
+  
+  tde::crp_connectors crp_conn( 0, nview );
+  int ch_start = 0;
+  for( auto const k : kel_view0 ){
+    crp_conn.add_connector( k, 0, false, ch_start );
+    ch_start += tde::ch_per_kel;
+  }
+  ch_start = 0;
+  for( auto const k : kel_view1 ){
+    //bool reverse = (k <= 13);
+    bool reverse = (k > 13);
+    crp_conn.add_connector( k, 1, reverse, ch_start );
+    ch_start += tde::ch_per_kel;
+  }
+
+  ch_start = 0;
+  for( auto const k : kel_view2 ){
+    crp_conn.add_connector( k, 2, false, ch_start );
+    ch_start += tde::ch_per_kel;
+  }
+
+  // only one crp
+  unsigned crp_id  = 0;
+  unsigned seqn    = 0;
+
+  // map the existing DAQ channels to 4th view
+  // not connected view id
+  unsigned view_na    = (unsigned)nview;
+  unsigned view_na_ch = 0;
+
+  for( auto const &utca : crates ) {
+    unsigned utca_id = (unsigned)utca._id;
+    //if( utca_id <= 1 ) continue;
+    auto utca_conn   = utca._crp_conn;
+    auto utca_nconn  = utca_conn.size();
+    auto utca_slots  = (unsigned)utca._cards;
+    for( unsigned amc = 0; amc < utca_slots; ++amc ){
+      // unconnected AMCs
+      if( amc >= utca_nconn ){
+	for( unsigned cardch = 0; cardch < tde::ch_per_amc; ++cardch ){
+	  add( seqn++, utca_id, amc, cardch, crp_id, view_na, view_na_ch++, 0);
+	}
+	continue;
+      }
+      
+      // connected to CRU
+      auto conn = utca_conn[ amc ];
+      unsigned islot = (unsigned)std::get<0>(conn);
+      //unsigned icrp  = (unsigned)std::get<1>(conn);
+      auto kel1_id  = std::get<2>(conn);
+      auto kel2_id  = std::get<3>(conn);
+      if( islot != amc ){
+	cerr<<"Mismatch in slot and AMC index. Should not happen\n";
+	amc = islot;
+      }
+
+      // 1st connector
+      if( kel1_id < (int)crp_conn._kels.size() ){
+	auto kel_ = std::next(crp_conn._kels.begin(), kel1_id);
+	if( kel_->_id != kel1_id ) {
+	  cerr <<"Mismatch in KEL numbering\n"; continue;
+	}
+	
+	vector<unsigned> order_ = (kel_->_reverse)? kel_inv : kel_nor;
+	unsigned iview     = (unsigned)kel_->_view;
+	unsigned vch_start = (unsigned)kel_->_first_view_ch;
+	//cout<<" amc "<<amc<<"    KEL connectors -> "<<kel1_id<<" "<<kel2_id<<" "<<iview<<" "<<vch_start<<endl;    
+	for( unsigned cardch = 0; cardch < tde::ch_per_kel; ++cardch ){
+	  unsigned viewch = vch_start + order_[cardch];
+	  add( seqn++, utca_id, amc, cardch, crp_id, iview, viewch, 0);
+	}
+      } // 1st connector
+      
+      // 2nd connector
+      if( kel2_id < (int)crp_conn._kels.size() ){
+	auto kel_ = std::next(crp_conn._kels.begin(), kel2_id);
+	if( kel_->_id != kel2_id ) {
+	  cerr <<"Mismatch in KEL numbering\n"; continue;
+	}
+	
+	vector<unsigned> order_ = (kel_->_reverse)? kel_inv : kel_nor;
+	unsigned iview     = (unsigned)kel_->_view;
+	unsigned vch_start = (unsigned)kel_->_first_view_ch;
+	//cout<<" amc "<<amc<<"    KEL connectors "<<kel1_id<<" -> "<<kel2_id<<" "<<iview<<" "<<vch_start<<endl; 
+	for( unsigned cardch = 0; cardch < tde::ch_per_kel; ++cardch ){
+	  unsigned viewch = vch_start + order_[cardch];
+	  add( seqn++, utca_id, amc, cardch + tde::ch_per_kel, crp_id, iview, viewch, 0);
+	}
+      }// 2nd connector
+    } // loop over AMCs
+  } // loop over crates
+
+  //cout<<" seqn = "<<seqn<<endl;
+  // that is it...
 }

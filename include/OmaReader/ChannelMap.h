@@ -235,8 +235,8 @@ namespace np02daq
     // ProtoDUNE DP map with 2 CRPs + 2 x 2 anodes
     void pddp2crpMap();
 
-    // ProtoDUNE DP map with 4 CRPs instrumented
-    void pddp4crpMap();
+    // VD CRP cold box 1
+    void vdcb1crpMap();
 
     // Just remove by hand channels which do not exists here 
     // since I do not want to be bothered anymore with this ...

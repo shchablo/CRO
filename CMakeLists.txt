@@ -58,20 +58,30 @@ set(CMAKE_PLATFORM_INDEPENDENT_CODE ON)
   include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
   ## main 
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/OmaReader)
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/DqAnalysis)
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/DqFeatures)
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/DqROOT)
 #-------------------------------------------------------------------------------
 
 # PROJECT SRC ------------------------------------------------------------------
 file(GLOB MAIN "main.cc")
-file(GLOB SIG "script/sig/main.cc")
-file(GLOB PED "script/ped/main.cc")
-file(GLOB REA "script/ready/main.cc")
+file(GLOB SIG "units/sig.cc")
+file(GLOB PED "units/ped.cc")
+file(GLOB REA "units/ready.cc")
+file(GLOB CBV1 "units/cbv1.cc")
   ## main 
   file(GLOB SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc")
+  file(GLOB SRComaReader "${CMAKE_CURRENT_SOURCE_DIR}/src/OmaReader/*.cc")
+  file(GLOB SRCdqAnalysis "${CMAKE_CURRENT_SOURCE_DIR}/src/DqAnalysis/*.cc")
+  file(GLOB SRCdqFeatures "${CMAKE_CURRENT_SOURCE_DIR}/src/DqFeatures/*.cc")
+  file(GLOB SRCdqROOT "${CMAKE_CURRENT_SOURCE_DIR}/src/DqROOT/*.cc")
     ### inData
-  set(CPPS ${MAIN} ${SRC})
-  set(SIGCPPS ${SIG} ${SRC})
-  set(PEDCPPS ${PED} ${SRC})
-  set(REACPPS ${REA} ${SRC})
+    set(CPPS    ${MAIN} ${SRC}  ${SRComaReader} ${SRCdqAnalysis}  ${SRCdqFeatures})
+  set(SIGCPPS   ${SIG}  ${SRC}  ${SRComaReader} ${SRCdqAnalysis}  ${SRCdqFeatures})
+  set(PEDCPPS   ${PED}  ${SRC}  ${SRComaReader} ${SRCdqAnalysis}  ${SRCdqFeatures})
+  set(REACPPS   ${REA}  ${SRC}  ${SRComaReader} ${SRCdqAnalysis}  ${SRCdqFeatures}) 
+  set(CBV1CPPS  ${CBV1} ${SRC}  ${SRComaReader} ${SRCdqAnalysis}  ${SRCdqFeatures} ${SRCdqROOT})
 
 
 #-------------------------------------------------------------------------------
@@ -101,6 +111,8 @@ add_executable(ped ${PEDCPPS})
 target_link_libraries(ped RoEvent ${ROOT_LIBRARIES} ${ZLIB_LIBRARIES})
 add_executable(rea ${REACPPS})
 target_link_libraries(rea RoEvent ${ROOT_LIBRARIES} ${ZLIB_LIBRARIES})
+add_executable(cbv1 ${CBV1CPPS})
+target_link_libraries(cbv1 RoEvent ${ROOT_LIBRARIES} ${ZLIB_LIBRARIES})
 
 # LIBRARIES --------------------------------------------------------------------
 file(GLOB PCM_FILES "${PROJECT_BINARY_DIR}/*.pcm")
